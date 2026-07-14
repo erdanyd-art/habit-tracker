@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Habits">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app">
+
+  <section class="screen active" id="screen-home" tabindex="-1">
+    <header class="app-header">
+      <p class="greeting-eyebrow" id="greetingText">Good Morning</p>
+      <h1 class="page-title">Today</h1>
+      <p class="motivational-text" id="homeSubtitle">Small steps every day add up.</p>
+    </header>
+
+    <section class="hero-card">
+      <p class="hero-label">Today's Progress</p>
+
+      <div class="hero-main">
+        <div class="hero-ring-wrap">
+          <svg class="hero-ring" viewBox="0 0 130 130">
+            <circle class="hero-ring-track" cx="65" cy="65" r="54"></circle>
+            <circle class="hero-ring-progress" id="heroRingProgress" cx="65" cy="65" r="54"></circle>
+          </svg>
+          <div class="hero-ring-center">
+            <span class="hero-percent" id="heroPercent">0%</span>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat-row">
+            <span class="hero-stat-icon" aria-hidden="true">✅</span>
+            <span class="hero-stat-text"><strong id="heroCount">0/0</strong><span>Habits Completed</span></span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-icon" aria-hidden="true">🔥</span>
+            <span class="hero-stat-text"><strong id="heroStreak">0</strong><span>Current Streak</span></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="hero-message" id="heroMessage">Every streak starts with one step.</p>
+    </section>
+
+    <section class="progression-section">
+      <h2 class="section-title">Progression</h2>
+      <div class="level-card">
+        <div class="level-card-header">
+          <span class="level-card-value" id="levelValue">Level 1</span>
+          <span class="level-card-xp" id="levelXPLabel">0 / 100 XP</span>
+        </div>
+        <div class="level-bar-track">
+          <div class="level-bar-fill" id="levelBarFill" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="today-section">
+      <h2 class="section-title">Continue Today</h2>
+      <div id="todayTaskList" class="today-task-list" aria-live="polite"></div>
+    </section>
+
+    <section class="weekly-activity">
+      <h2 class="section-title">Weekly Activity</h2>
+      <div class="weekly-activity-card">
+        <div class="weekly-activity-labels" id="weeklyActivityLabels"></div>
+        <div class="weekly-activity-chips" id="weeklyActivityChips"></div>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="settings-list">
+        <button class="settings-row quick-action" data-screen-link="habits" data-focus="habitInput">
+          <span class="settings-row-label">Add a Habit</span>
+          <span class="quick-action-chevron" aria-hidden="true">›</span>
+        </button>
+        <button class="settings-row quick-action" data-screen-link="insights">
+          <span class="settings-row-label">View Insights</span>
+          <span class="quick-action-chevron" aria-hidden="true">›</span>
+        </button>
+      </div>
+    </section>
+  </section>
+
+  <section class="screen" id="screen-habits" tabindex="-1">
+    <header class="habits-header">
+      <h1 class="page-title">Habits</h1>
+      <p class="motivational-text" id="habitsSubtitle">0 active habits</p>
+    </header>
+
+    <section class="add-habit-panel" id="addHabitPanel" hidden>
+      <div class="add-habit">
+        <input type="text" id="habitInput" placeholder="Add a new habit..." />
+        <button id="addHabitBtn">Add</button>
+      </div>
+    </section>
+
+    <section id="todaysHabits">
+      <main>
+        <ul id="habitList" class="habit-list"></ul>
+      </main>
+    </section>
+
+    <button type="button" class="habit-fab" id="habitFab" aria-label="Add a habit">+</button>
+  </section>
+
+  <section class="screen" id="screen-insights" tabindex="-1">
+    <header class="insights-header">
+      <h1 class="page-title">Insights</h1>
+      <p class="motivational-text">Your overall progress</p>
+    </header>
+
+    <section class="insights-hero-card">
+      <p class="hero-label">Overall Progress</p>
+      <div class="hero-main">
+        <div class="hero-ring-wrap">
+          <svg class="hero-ring" viewBox="0 0 130 130">
+            <circle class="hero-ring-track" cx="65" cy="65" r="54"></circle>
+            <circle class="hero-ring-progress" id="insightsRingProgress" cx="65" cy="65" r="54"></circle>
+          </svg>
+          <div class="hero-ring-center">
+            <span class="hero-percent" id="statCompletionRate">0%</span>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat-row">
+            <span class="hero-stat-icon" aria-hidden="true">🔥</span>
+            <span class="hero-stat-text"><strong id="statCurrentStreak">0</strong><span>Current Streak</span></span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-icon" aria-hidden="true">🏆</span>
+            <span class="hero-stat-text"><strong id="statLongestStreak">0</strong><span>Longest Streak</span></span>
+          </div>
+          <div class="hero-stat-row">
+            <span class="hero-stat-icon" aria-hidden="true">✅</span>
+            <span class="hero-stat-text"><strong id="statTotalCompleted">0</strong><span>Total Completed</span></span>
+          </div>
+        </div>
+      </div>
+      <p class="hero-message" id="insightsHeroMessage">Keep going.</p>
+    </section>
+
+    <section class="insights-section">
+      <h2 class="section-title">Weekly Progress</h2>
+      <div class="chart-card chart-card-tall">
+        <div class="chart-wrapper chart-wrapper-tall">
+          <canvas id="weeklyChart" role="img" aria-label="Line chart of your habit completion percentage for each day this week"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="insights-section">
+      <h2 class="section-title">Monthly Heatmap</h2>
+      <section class="calendar-section heatmap-card">
+        <div class="calendar-header">
+          <button id="prevMonthBtn" class="calendar-nav-btn" aria-label="Previous month">‹</button>
+          <h3 id="calendarMonthLabel" class="calendar-month-label"></h3>
+          <button id="nextMonthBtn" class="calendar-nav-btn" aria-label="Next month">›</button>
+        </div>
+        <div class="calendar-weekdays">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+        <div class="heatmap-legend">
+          <span class="heatmap-legend-label">Less</span>
+          <span class="legend-swatch swatch-none"></span>
+          <span class="legend-swatch swatch-partial"></span>
+          <span class="legend-swatch swatch-full"></span>
+          <span class="heatmap-legend-label">More</span>
+        </div>
+        <div id="calendarDetail" class="calendar-detail" hidden aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section class="insights-section">
+      <h2 class="section-title">Achievements</h2>
+      <div id="achievementsList" class="achievements-scroll"></div>
+    </section>
+
+    <section class="insights-section">
+      <h2 class="section-title">Habit Insights</h2>
+      <div id="habitInsightsList" class="insights-list"></div>
+    </section>
+  </section>
+
+  <section class="screen" id="screen-settings" tabindex="-1">
+    <section class="settings-section" id="settingsSection">
+      <h2 class="section-title">Settings</h2>
+      <div class="settings-list">
+        <div class="settings-row">
+          <span class="settings-row-label">Account</span>
+          <button id="authBtn" class="auth-btn" aria-label="Sign in with Google"></button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-row-label">Appearance</span>
+          <button id="themeToggleBtn" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+</div>
+
+<div class="level-up-overlay" id="levelUpOverlay" hidden>
+  <div class="level-up-modal" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
+    <div class="level-up-confetti" id="levelUpConfetti" aria-hidden="true"></div>
+    <p class="level-up-emoji" aria-hidden="true">🎉</p>
+    <h2 class="level-up-title" id="levelUpTitle">Level Up!</h2>
+    <div class="level-up-levels">
+      <div class="level-up-level-box">
+        <span class="level-up-level-label">Current Level</span>
+        <span class="level-up-level-value" id="levelUpFrom">1</span>
+      </div>
+      <span class="level-up-arrow">→</span>
+      <div class="level-up-level-box level-up-level-box-new">
+        <span class="level-up-level-label">New Level</span>
+        <span class="level-up-level-value" id="levelUpTo">2</span>
+      </div>
+    </div>
+    <button type="button" class="level-up-continue" id="levelUpContinueBtn">Continue</button>
+  </div>
+</div>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+  <span class="nav-pill" id="navPill"></span>
+  <button class="nav-tab active" data-screen="home" aria-label="Home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-tab" data-screen="habits" aria-label="Habits">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>
+    <span>Habits</span>
+  </button>
+  <button class="nav-tab" data-screen="insights" aria-label="Insights">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
+    <span>Insights</span>
+  </button>
+  <button class="nav-tab" data-screen="settings" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 01-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 010-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 014 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 010 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/error-ui.js"></script>
+<script src="js/cloud-sync.js"></script>
+<script src="js/progression.js"></script>
+<script src="js/app.js"></script>
+<script src="js/loading-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="js/analytics.js"></script>
+<script src="js/habit-insights.js"></script>
+<script src="js/xp-sync.js"></script>
+<script src="js/xp-ui.js"></script>
+<script src="js/home-ui.js"></script>
+<script src="js/habits-ui.js"></script>
+<script src="js/habit-swipe.js"></script>
+<script src="js/bottom-nav.js"></script>
+</body>
+</html>
