@@ -1,4 +1,4 @@
-const CACHE_NAME = "habit-tracker-v23";
+const CACHE_NAME = "habit-tracker-v24";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,11 +8,15 @@ const ASSETS = [
   "./js/error-ui.js",
   "./js/analytics.js",
   "./js/habit-insights.js",
+  "./js/achievements.js",
   "./js/supabase-config.js",
   "./js/cloud-sync.js",
   "./js/progression.js",
   "./js/xp-sync.js",
   "./js/xp-ui.js",
+  "./js/profile-service.js",
+  "./js/profile-stats.js",
+  "./js/profile-ui.js",
   "./js/home-ui.js",
   "./js/habits-ui.js",
   "./js/habit-swipe.js",

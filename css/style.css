@@ -1764,3 +1764,354 @@ input:focus-visible,
 .inline-error-icon {
   font-size: 20px;
 }
+
+/* Profile */
+
+#screen-profile {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+.profile-section {
+  margin-top: 32px;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 32px 24px 26px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: cardFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-avatar-fallback {
+  font-size: 34px;
+}
+
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.profile-username {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.profile-bio {
+  max-width: 320px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin-top: 10px;
+}
+
+.profile-joined {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+.profile-edit-btn,
+.profile-signin-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.profile-signin-btn {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.profile-edit-btn:active,
+.profile-signin-btn:active {
+  transform: scale(0.96);
+}
+
+/* Edit Profile panel */
+
+.profile-edit-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 20px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.profile-edit-panel[hidden] {
+  display: none;
+}
+
+.profile-edit-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.profile-edit-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-secondary);
+  margin-top: 14px;
+}
+
+.profile-edit-label:first-child {
+  margin-top: 0;
+}
+
+.profile-edit-input,
+.profile-edit-textarea {
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 15px;
+  font-family: inherit;
+  width: 100%;
+}
+
+.profile-edit-textarea {
+  resize: none;
+}
+
+.profile-edit-username-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.profile-edit-at {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.profile-edit-username-row .profile-edit-input {
+  margin-top: 0;
+}
+
+.profile-edit-error {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.profile-edit-cancel,
+.profile-edit-save {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-control);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+.profile-edit-cancel {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.profile-edit-save {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.profile-edit-save:active,
+.profile-edit-cancel:active {
+  transform: scale(0.97);
+}
+
+.profile-edit-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Journey Statistics */
+
+.profile-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.profile-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: cardFadeIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.profile-stat-icon {
+  font-size: 20px;
+}
+
+.profile-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.profile-stat-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* Achievements summary */
+
+.profile-achievements-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.profile-achievements-row {
+  display: flex;
+  gap: 12px;
+}
+
+.profile-achievements-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  background: var(--color-bg);
+  border-radius: var(--radius-control);
+}
+
+.profile-achievements-value {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.profile-achievements-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.profile-latest-achievement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.profile-latest-icon {
+  font-size: 26px;
+  width: 40px;
+  text-align: center;
+}
+
+.profile-latest-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.profile-latest-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.profile-latest-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.profile-view-all-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.profile-view-all-btn:active {
+  transform: scale(0.97);
+}
+
+/* Account section - reuses .settings-list / .settings-row */
+
+.profile-account-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-align: right;
+}

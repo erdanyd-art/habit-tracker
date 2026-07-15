@@ -198,6 +198,67 @@
     </section>
   </section>
 
+  <section class="screen" id="screen-profile" tabindex="-1">
+    <header class="app-header">
+      <h1 class="page-title">Profile</h1>
+    </header>
+
+    <section class="profile-card">
+      <div class="profile-avatar-wrap">
+        <img class="profile-avatar" id="profileAvatar" alt="" hidden referrerpolicy="no-referrer" />
+        <span class="profile-avatar-fallback" id="profileAvatarFallback">🙂</span>
+      </div>
+      <h2 class="profile-name" id="profileName">Guest</h2>
+      <p class="profile-username" id="profileUsername" hidden></p>
+      <p class="profile-bio" id="profileBio">Sign in to build your profile.</p>
+      <p class="profile-joined" id="profileJoined" hidden></p>
+
+      <button type="button" class="profile-edit-btn" id="profileEditBtn" hidden>Edit Profile</button>
+      <button type="button" class="profile-signin-btn" id="profileSignInBtn">Sign in with Google</button>
+    </section>
+
+    <section class="profile-edit-panel" id="profileEditPanel" hidden>
+      <label class="profile-edit-label" for="profileEditName">Display Name</label>
+      <input type="text" id="profileEditName" class="profile-edit-input" maxlength="60" />
+
+      <label class="profile-edit-label" for="profileEditUsername">Username</label>
+      <div class="profile-edit-username-row">
+        <span class="profile-edit-at" aria-hidden="true">@</span>
+        <input type="text" id="profileEditUsername" class="profile-edit-input" maxlength="30" autocapitalize="off" autocorrect="off" />
+      </div>
+
+      <label class="profile-edit-label" for="profileEditBio">Bio</label>
+      <textarea id="profileEditBio" class="profile-edit-textarea" maxlength="140" rows="3"></textarea>
+
+      <p class="profile-edit-error" id="profileEditError" hidden></p>
+
+      <div class="profile-edit-actions">
+        <button type="button" class="profile-edit-cancel" id="profileEditCancelBtn">Cancel</button>
+        <button type="button" class="profile-edit-save" id="profileEditSaveBtn">Save</button>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Journey Statistics</h2>
+      <div class="profile-stat-grid" id="profileStatGrid"></div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Achievements</h2>
+      <div class="profile-achievements-card" id="profileAchievementsCard"></div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Habit Overview</h2>
+      <div class="insights-list" id="profileOverviewList"></div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Account</h2>
+      <div class="settings-list" id="profileAccountList"></div>
+    </section>
+  </section>
+
   <section class="screen" id="screen-settings" tabindex="-1">
     <section class="settings-section" id="settingsSection">
       <h2 class="section-title">Settings</h2>
@@ -250,6 +311,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
     <span>Insights</span>
   </button>
+  <button class="nav-tab" data-screen="profile" aria-label="Profile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    <span>Profile</span>
+  </button>
   <button class="nav-tab" data-screen="settings" aria-label="Settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 01-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 010-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 014 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 010 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
     <span>Settings</span>
@@ -261,6 +326,7 @@
 <script src="js/error-ui.js"></script>
 <script src="js/cloud-sync.js"></script>
 <script src="js/progression.js"></script>
+<script src="js/achievements.js"></script>
 <script src="js/app.js"></script>
 <script src="js/loading-ui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -268,9 +334,12 @@
 <script src="js/habit-insights.js"></script>
 <script src="js/xp-sync.js"></script>
 <script src="js/xp-ui.js"></script>
+<script src="js/profile-service.js"></script>
+<script src="js/profile-stats.js"></script>
 <script src="js/home-ui.js"></script>
 <script src="js/habits-ui.js"></script>
 <script src="js/habit-swipe.js"></script>
+<script src="js/profile-ui.js"></script>
 <script src="js/bottom-nav.js"></script>
 </body>
 </html>

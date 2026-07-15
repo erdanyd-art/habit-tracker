@@ -24,6 +24,7 @@ const CloudSync = (function () {
   let client = null;
   let currentUser = null;
   let flushing = false;
+  let lastSyncedAt = null;
 
   function getClient() {
     if (client) return client;
@@ -85,6 +86,7 @@ const CloudSync = (function () {
   function updateSyncIndicator() {
     const authBtn = document.getElementById("authBtn");
     if (authBtn) authBtn.classList.toggle("is-syncing", activeSyncCount > 0);
+    document.dispatchEvent(new CustomEvent("sync:changed", { detail: { syncing: activeSyncCount > 0 } }));
   }
 
   function beginSync() {
@@ -126,6 +128,7 @@ const CloudSync = (function () {
           break;
         }
       }
+      lastSyncedAt = new Date().toISOString();
     } finally {
       flushing = false;
       endSync();
@@ -185,6 +188,7 @@ const CloudSync = (function () {
       habits = merged;
       saveHabits();
       renderHabits();
+      lastSyncedAt = new Date().toISOString();
     } finally {
       endSync();
     }
@@ -309,6 +313,7 @@ const CloudSync = (function () {
     isAuthed: () => !!currentUser,
     getClient,
     getCurrentUser: () => currentUser,
+    getLastSyncedAt: () => lastSyncedAt,
   };
 })();
 
