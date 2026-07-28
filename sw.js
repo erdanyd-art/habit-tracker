@@ -1,7 +1,8 @@
-const CACHE_NAME = "habit-tracker-v24";
+const CACHE_NAME = "habit-tracker-v29";
 const ASSETS = [
   "./",
   "./index.html",
+  "./public-profile.html",
   "./css/style.css",
   "./js/app.js",
   "./js/loading-ui.js",
@@ -10,6 +11,7 @@ const ASSETS = [
   "./js/habit-insights.js",
   "./js/achievements.js",
   "./js/supabase-config.js",
+  "./js/standalone-supabase-client.js",
   "./js/cloud-sync.js",
   "./js/progression.js",
   "./js/xp-sync.js",
@@ -17,6 +19,14 @@ const ASSETS = [
   "./js/profile-service.js",
   "./js/profile-stats.js",
   "./js/profile-ui.js",
+  "./js/relationship-status-service.js",
+  "./js/friend-request-service.js",
+  "./js/friend-service.js",
+  "./js/friend-requests-ui.js",
+  "./js/user-search-service.js",
+  "./js/user-profile-service.js",
+  "./js/discover-ui.js",
+  "./js/public-profile.js",
   "./js/home-ui.js",
   "./js/habits-ui.js",
   "./js/habit-swipe.js",

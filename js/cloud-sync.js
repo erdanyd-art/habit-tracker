@@ -63,6 +63,7 @@ const CloudSync = (function () {
       created_at: habit.createdAt,
       updated_at: habit.updatedAt || new Date().toISOString(),
       difficulty: habit.difficulty || "medium",
+      is_public: !!habit.isPublic,
     };
   }
 
@@ -74,6 +75,7 @@ const CloudSync = (function () {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       difficulty: row.difficulty || "medium",
+      isPublic: !!row.is_public,
     };
   }
 

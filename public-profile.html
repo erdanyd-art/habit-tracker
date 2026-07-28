@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile · Habit Tracker</title>
+<meta name="theme-color" content="#0071e3">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app public-profile-page">
+
+  <div class="public-profile-loading" id="publicProfileLoading">
+    <div class="public-profile-skeleton"></div>
+    <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+  </div>
+
+  <div class="public-profile-empty" id="publicProfileEmpty" hidden>
+    <p class="public-profile-empty-emoji" id="ppEmptyEmoji">🔒</p>
+    <p class="public-profile-empty-text" id="ppEmptyText"></p>
+    <a class="public-profile-empty-link" href="/">Open Habit Tracker</a>
+  </div>
+
+  <div class="public-profile-content" id="publicProfileContent" hidden>
+
+    <section class="profile-card">
+      <div class="profile-avatar-wrap">
+        <img class="profile-avatar" id="ppAvatar" alt="" hidden referrerpolicy="no-referrer" />
+        <span class="profile-avatar-fallback" id="ppAvatarFallback">🙂</span>
+      </div>
+      <h1 class="profile-name" id="ppName"></h1>
+      <p class="profile-username" id="ppUsername"></p>
+      <p class="profile-bio" id="ppBio" hidden></p>
+      <p class="profile-joined" id="ppJoined" hidden></p>
+
+      <!-- Sprint 3+ extension points: Friend Button / Challenge Button /
+           Circle Badge. Deliberately empty and unwired for now. -->
+      <div class="public-profile-future-actions">
+        <div id="publicProfileFriendSlot"></div>
+        <div id="publicProfileChallengeSlot"></div>
+        <div id="publicProfileCircleSlot"></div>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Journey</h2>
+      <div class="profile-stat-grid" id="ppStatGrid"></div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Achievements</h2>
+      <div class="profile-achievements-card" id="ppAchievementsCard"></div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Today's Progress</h2>
+      <div class="public-profile-progress-card" id="ppProgressCard">
+        <div class="pp-ring-wrap">
+          <svg class="pp-ring" viewBox="0 0 130 130">
+            <circle class="pp-ring-track" cx="65" cy="65" r="54"></circle>
+            <circle class="pp-ring-progress" id="ppRingProgress" cx="65" cy="65" r="54"></circle>
+          </svg>
+          <div class="pp-ring-center">
+            <span class="pp-ring-percent" id="ppRingPercent">0%</span>
+          </div>
+        </div>
+        <p class="pp-progress-label" id="ppProgressLabel">0 / 0 Habits Completed</p>
+      </div>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Public Habits</h2>
+      <div class="public-profile-habit-list" id="ppHabitList"></div>
+    </section>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/error-ui.js"></script>
+<script src="js/standalone-supabase-client.js"></script>
+<script src="js/progression.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/relationship-status-service.js"></script>
+<script src="js/friend-request-service.js"></script>
+<script src="js/friend-service.js"></script>
+<script src="js/public-profile.js"></script>
+</body>
+</html>

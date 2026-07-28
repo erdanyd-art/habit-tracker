@@ -16,11 +16,17 @@
   const joinedEl = document.getElementById("profileJoined");
   const editBtn = document.getElementById("profileEditBtn");
   const signInBtn = document.getElementById("profileSignInBtn");
+  const shareRow = document.getElementById("profileShareRow");
+  const shareBtn = document.getElementById("profileShareBtn");
+  const copyLinkBtn = document.getElementById("profileCopyLinkBtn");
+  const friendRequestsEntryBtn = document.getElementById("friendRequestsEntryBtn");
+  const friendRequestsBadge = document.getElementById("friendRequestsBadge");
 
   const editPanel = document.getElementById("profileEditPanel");
   const editNameInput = document.getElementById("profileEditName");
   const editUsernameInput = document.getElementById("profileEditUsername");
   const editBioInput = document.getElementById("profileEditBio");
+  const editIsPublicInput = document.getElementById("profileEditIsPublic");
   const editError = document.getElementById("profileEditError");
   const editCancelBtn = document.getElementById("profileEditCancelBtn");
   const editSaveBtn = document.getElementById("profileEditSaveBtn");
@@ -72,11 +78,15 @@
       joinedEl.hidden = true;
       editBtn.hidden = true;
       signInBtn.hidden = false;
+      shareRow.hidden = true;
+      friendRequestsEntryBtn.hidden = true;
       return;
     }
 
     signInBtn.hidden = true;
     editBtn.hidden = false;
+    shareRow.hidden = false;
+    friendRequestsEntryBtn.hidden = false;
 
     const meta = user.user_metadata || {};
     const avatarUrl = (profile && profile.avatar_url) || meta.avatar_url;
@@ -213,6 +223,20 @@
     ].join("");
   }
 
+  // Not realtime (per the sprint's own "not required yet") - just refreshed
+  // whenever the Profile screen is rendered/re-shown, cheap enough for a
+  // single count query.
+  async function loadFriendRequestBadge() {
+    if (friendRequestsEntryBtn.hidden || typeof FriendRequestService === "undefined") return;
+    const { incoming } = await FriendRequestService.listRequests();
+    if (incoming.length > 0) {
+      friendRequestsBadge.textContent = String(incoming.length);
+      friendRequestsBadge.hidden = false;
+    } else {
+      friendRequestsBadge.hidden = true;
+    }
+  }
+
   function render() {
     const habits = loadHabits();
     const stats = ProfileStats.compute(habits, latestTotalXP);
@@ -221,6 +245,7 @@
     renderAchievements(stats);
     renderOverview(stats);
     renderAccount(latestProfile);
+    loadFriendRequestBadge();
   }
 
   // --- Edit Profile (display name, username, bio only) -----------------
@@ -229,6 +254,7 @@
     editNameInput.value = (latestProfile && latestProfile.display_name) || nameEl.textContent;
     editUsernameInput.value = (latestProfile && latestProfile.username) || "";
     editBioInput.value = (latestProfile && latestProfile.bio) || "";
+    editIsPublicInput.checked = !!(latestProfile && latestProfile.is_public);
     editError.hidden = true;
     editPanel.hidden = false;
     requestAnimationFrame(() => editPanel.classList.add("open"));
@@ -262,7 +288,12 @@
     }
 
     editSaveBtn.disabled = true;
-    const result = await ProfileService.updateProfile({ display_name: displayName, username, bio });
+    const result = await ProfileService.updateProfile({
+      display_name: displayName,
+      username,
+      bio,
+      is_public: editIsPublicInput.checked,
+    });
     editSaveBtn.disabled = false;
 
     if (result.error) {
@@ -283,9 +314,55 @@
     });
   }
 
+  // --- Share Profile -----------------------------------------------------
+
+  function publicProfileUrl() {
+    const username = latestProfile && latestProfile.username;
+    if (!username) return null;
+    return `${location.origin}/u/${encodeURIComponent(username)}`;
+  }
+
+  async function copyProfileLink(url) {
+    try {
+      await navigator.clipboard.writeText(url);
+      if (typeof ErrorUI !== "undefined") ErrorUI.showToast("Link copied", "🔗");
+    } catch (err) {
+      if (typeof ErrorUI !== "undefined") ErrorUI.showToast("Couldn't copy the link. Try again.");
+    }
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener("click", async () => {
+      const url = publicProfileUrl();
+      if (!url) return;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "My Habit Tracker profile", url });
+        } catch (err) {
+          // AbortError when the user cancels the native share sheet - not
+          // a failure, nothing to show.
+        }
+        return;
+      }
+
+      copyProfileLink(url);
+    });
+  }
+
+  if (copyLinkBtn) {
+    copyLinkBtn.addEventListener("click", () => {
+      const url = publicProfileUrl();
+      if (url) copyProfileLink(url);
+    });
+  }
+
   document.addEventListener("habits:updated", render);
   document.addEventListener("auth:changed", render);
   document.addEventListener("sync:changed", () => renderAccount(latestProfile));
+  document.addEventListener("screen:shown", (e) => {
+    if (e.detail.screen === "profile") loadFriendRequestBadge();
+  });
 
   document.addEventListener("xp:updated", (e) => {
     latestTotalXP = e.detail.totalXP;

@@ -830,6 +830,28 @@ input:focus-visible,
   opacity: 0.5;
 }
 
+.habit-visibility-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.habit-visibility-btn:active {
+  transform: scale(0.92);
+}
+
+.habit-visibility-btn.is-public {
+  background: color-mix(in srgb, var(--accent-green) 16%, var(--color-bg));
+  color: var(--accent-green-dark);
+}
+
 .habit-check {
   display: flex;
   align-items: center;
@@ -1765,6 +1787,250 @@ input:focus-visible,
   font-size: 20px;
 }
 
+/* Public Profile page (public-profile.html) */
+
+.public-profile-page {
+  padding-top: 8px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+}
+
+body:has(.public-profile-page) {
+  padding-bottom: 32px;
+}
+
+.public-profile-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.public-profile-skeleton {
+  height: 220px;
+  border-radius: var(--radius-card);
+  background: linear-gradient(100deg, var(--color-surface) 30%, var(--color-border) 45%, var(--color-surface) 60%);
+  background-size: 250% 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+.public-profile-skeleton-sm {
+  height: 120px;
+}
+
+.public-profile-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 80px 24px;
+}
+
+.public-profile-empty[hidden],
+.public-profile-content[hidden],
+.public-profile-loading[hidden] {
+  display: none;
+}
+
+.public-profile-empty-emoji {
+  font-size: 44px;
+}
+
+.public-profile-empty-text {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.public-profile-empty-link {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.public-profile-future-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.public-profile-future-actions:empty {
+  display: none;
+}
+
+/* Friend action button (Sprint 4) - rendered into #publicProfileFriendSlot */
+
+.pp-friend-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.pp-friend-btn:active {
+  transform: scale(0.96);
+}
+
+.pp-friend-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.pp-friend-btn-add {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.pp-friend-btn-pending {
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+.pp-friend-btn-accept {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.pp-friend-btn-friends {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.public-profile-progress-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 24px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.pp-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.pp-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pp-ring-track,
+.pp-ring-progress {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.pp-ring-track {
+  stroke: var(--color-border);
+}
+
+.pp-ring-progress {
+  stroke: var(--accent-green);
+  stroke-dasharray: 339.3;
+  stroke-dashoffset: calc(339.3 - (339.3 * var(--progress, 0) / 100));
+  transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pp-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pp-ring-percent {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pp-progress-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.public-profile-habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.public-habit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.public-habit-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.public-habit-meta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.public-habit-streak {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-streak);
+}
+
+.public-habit-status {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+.public-habit-status.is-done {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.public-profile-habit-empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  padding: 24px 0;
+}
+
 /* Profile */
 
 #screen-profile {
@@ -1862,6 +2128,118 @@ input:focus-visible,
 .profile-edit-btn:active,
 .profile-signin-btn:active {
   transform: scale(0.96);
+}
+
+/* Share Profile */
+
+.profile-share-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.profile-share-row[hidden] {
+  display: none;
+}
+
+.profile-share-btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.profile-share-btn-secondary {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.profile-share-btn:active {
+  transform: scale(0.96);
+}
+
+/* iOS-style switch, used for the Public Profile toggle */
+
+.profile-toggle {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.profile-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.profile-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--color-border);
+  transition: background 0.2s ease;
+}
+
+.profile-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.profile-toggle input:checked + .profile-toggle-track {
+  background: var(--accent-green);
+}
+
+.profile-toggle input:checked + .profile-toggle-track::after {
+  transform: translateX(18px);
+}
+
+.profile-edit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.profile-edit-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profile-edit-toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-edit-toggle-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
 }
 
 /* Edit Profile panel */
@@ -2114,4 +2492,309 @@ input:focus-visible,
   font-weight: 500;
   color: var(--color-text-secondary);
   text-align: right;
+}
+
+/* Discover (Sprint 2: User Discovery) */
+
+.discover-search-section {
+  margin-bottom: 8px;
+}
+
+.discover-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  transition: border-color 0.2s ease;
+}
+
+.discover-search-bar:focus-within {
+  border-color: var(--color-accent);
+}
+
+.discover-search-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.discover-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.discover-search-input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.discover-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* The class above sets its own `display`, which otherwise beats the
+   browser's default [hidden] { display: none } UA rule - same fix already
+   applied to .public-profile-empty for the same reason. Without this, JS
+   setting loadingEl.hidden = true has no visible effect. */
+.discover-loading[hidden] {
+  display: none;
+}
+
+.discover-section {
+  margin-top: 28px;
+}
+
+.discover-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.discover-result-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease;
+  animation: cardFadeIn 0.35s ease backwards;
+}
+
+.discover-result-card:active {
+  transform: scale(0.98);
+}
+
+.discover-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-bg);
+}
+
+.discover-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.discover-result-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.discover-result-name {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discover-result-username {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.discover-result-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.discover-result-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Friend Requests (Sprint 4) */
+
+.profile-app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.friend-requests-entry-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.friend-requests-entry-btn svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text);
+}
+
+.friend-requests-entry-btn:active {
+  transform: scale(0.94);
+}
+
+.friend-requests-entry-btn[hidden] {
+  display: none;
+}
+
+.friend-requests-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.friend-requests-badge[hidden] {
+  display: none;
+}
+
+.friend-request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.friend-request-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.friend-request-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-bg);
+}
+
+.friend-request-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.friend-request-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friend-request-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-request-meta {
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-request-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.friend-request-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.friend-request-btn:active {
+  transform: scale(0.94);
+}
+
+.friend-request-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.friend-request-btn-accept {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.friend-request-btn-decline,
+.friend-request-btn-cancel {
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+.friend-request-empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  padding: 20px 0;
 }

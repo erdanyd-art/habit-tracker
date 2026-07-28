@@ -198,9 +198,52 @@
     </section>
   </section>
 
-  <section class="screen" id="screen-profile" tabindex="-1">
+  <section class="screen" id="screen-discover" tabindex="-1">
     <header class="app-header">
+      <h1 class="page-title">Discover</h1>
+      <p class="motivational-text">Find people to follow</p>
+    </header>
+
+    <section class="discover-search-section">
+      <div class="discover-search-bar">
+        <svg class="discover-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="discoverSearchInput" class="discover-search-input" placeholder="Search by username or name" autocomplete="off" autocapitalize="off" autocorrect="off" />
+      </div>
+    </section>
+
+    <div id="discoverLoading" class="discover-loading" hidden aria-hidden="true">
+      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+    </div>
+
+    <div id="discoverEmpty" class="public-profile-empty" hidden>
+      <span class="public-profile-empty-emoji" id="discoverEmptyEmoji" aria-hidden="true">🔍</span>
+      <span class="public-profile-empty-text" id="discoverEmptyText">No users found.</span>
+    </div>
+
+    <section id="discoverResultsSection" class="discover-section" hidden>
+      <h2 class="section-title">Results</h2>
+      <div id="discoverResultsList" class="discover-result-list" aria-live="polite"></div>
+    </section>
+
+    <section id="discoverRecentSection" class="discover-section" hidden>
+      <h2 class="section-title">Recently Viewed</h2>
+      <div id="discoverRecentList" class="discover-result-list"></div>
+    </section>
+
+    <section id="discoverSuggestedSection" class="discover-section" hidden>
+      <h2 class="section-title">Suggested For You</h2>
+      <div id="discoverSuggestedList" class="discover-result-list"></div>
+    </section>
+  </section>
+
+  <section class="screen" id="screen-profile" tabindex="-1">
+    <header class="app-header profile-app-header">
       <h1 class="page-title">Profile</h1>
+      <button type="button" class="friend-requests-entry-btn" id="friendRequestsEntryBtn" data-screen-link="friend-requests" aria-label="Friend Requests" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span class="friend-requests-badge" id="friendRequestsBadge" hidden>0</span>
+      </button>
     </header>
 
     <section class="profile-card">
@@ -215,6 +258,11 @@
 
       <button type="button" class="profile-edit-btn" id="profileEditBtn" hidden>Edit Profile</button>
       <button type="button" class="profile-signin-btn" id="profileSignInBtn">Sign in with Google</button>
+
+      <div class="profile-share-row" id="profileShareRow" hidden>
+        <button type="button" class="profile-share-btn" id="profileShareBtn">Share Profile</button>
+        <button type="button" class="profile-share-btn profile-share-btn-secondary" id="profileCopyLinkBtn">Copy Link</button>
+      </div>
     </section>
 
     <section class="profile-edit-panel" id="profileEditPanel" hidden>
@@ -229,6 +277,17 @@
 
       <label class="profile-edit-label" for="profileEditBio">Bio</label>
       <textarea id="profileEditBio" class="profile-edit-textarea" maxlength="140" rows="3"></textarea>
+
+      <div class="profile-edit-toggle-row">
+        <div class="profile-edit-toggle-text">
+          <span class="profile-edit-toggle-label">Public Profile</span>
+          <span class="profile-edit-toggle-hint">Anyone with your link can view habits you mark Public</span>
+        </div>
+        <label class="profile-toggle">
+          <input type="checkbox" id="profileEditIsPublic" />
+          <span class="profile-toggle-track" aria-hidden="true"></span>
+        </label>
+      </div>
 
       <p class="profile-edit-error" id="profileEditError" hidden></p>
 
@@ -256,6 +315,24 @@
     <section class="profile-section">
       <h2 class="section-title">Account</h2>
       <div class="settings-list" id="profileAccountList"></div>
+    </section>
+  </section>
+
+  <section class="screen" id="screen-friend-requests" tabindex="-1">
+    <header class="app-header">
+      <h1 class="page-title">Friend Requests</h1>
+    </header>
+
+    <section class="profile-section">
+      <h2 class="section-title">Incoming Requests</h2>
+      <div class="friend-request-list" id="friendRequestsIncomingList"></div>
+      <p class="public-profile-empty-text friend-request-empty" id="friendRequestsIncomingEmpty" hidden>No friend requests.</p>
+    </section>
+
+    <section class="profile-section">
+      <h2 class="section-title">Outgoing Requests</h2>
+      <div class="friend-request-list" id="friendRequestsOutgoingList"></div>
+      <p class="public-profile-empty-text friend-request-empty" id="friendRequestsOutgoingEmpty" hidden>You haven't sent any requests.</p>
     </section>
   </section>
 
@@ -311,6 +388,10 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
     <span>Insights</span>
   </button>
+  <button class="nav-tab" data-screen="discover" aria-label="Discover">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span>Discover</span>
+  </button>
   <button class="nav-tab" data-screen="profile" aria-label="Profile">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
     <span>Profile</span>
@@ -336,10 +417,17 @@
 <script src="js/xp-ui.js"></script>
 <script src="js/profile-service.js"></script>
 <script src="js/profile-stats.js"></script>
+<script src="js/relationship-status-service.js"></script>
+<script src="js/friend-request-service.js"></script>
+<script src="js/friend-service.js"></script>
 <script src="js/home-ui.js"></script>
 <script src="js/habits-ui.js"></script>
 <script src="js/habit-swipe.js"></script>
 <script src="js/profile-ui.js"></script>
+<script src="js/friend-requests-ui.js"></script>
+<script src="js/user-search-service.js"></script>
+<script src="js/user-profile-service.js"></script>
+<script src="js/discover-ui.js"></script>
 <script src="js/bottom-nav.js"></script>
 </body>
 </html>

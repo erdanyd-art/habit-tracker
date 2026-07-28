@@ -78,7 +78,7 @@
     let pointerId = null;
 
     surface.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".habit-check")) return;
+      if (e.target.closest(".habit-check") || e.target.closest(".habit-visibility-btn")) return;
       pointerId = e.pointerId;
       startX = e.clientX;
       startY = e.clientY;

@@ -75,6 +75,9 @@ function migrateHabit(h) {
     if (!h.difficulty) {
       h.difficulty = "medium";
     }
+    if (typeof h.isPublic !== "boolean") {
+      h.isPublic = false;
+    }
     return h;
   }
 
@@ -89,6 +92,7 @@ function migrateHabit(h) {
     createdAt: history[0] || todayString(),
     updatedAt: new Date().toISOString(),
     difficulty: "medium",
+    isPublic: false,
   };
 }
 
@@ -140,6 +144,7 @@ function addHabit(name) {
     createdAt: todayString(),
     updatedAt: new Date().toISOString(),
     difficulty: "medium",
+    isPublic: false,
   };
   habits.push(habit);
   saveHabits();
@@ -186,6 +191,21 @@ function toggleHabit(id) {
   } else {
     habit.history.splice(idx, 1);
   }
+  habit.updatedAt = new Date().toISOString();
+
+  saveHabits();
+  renderHabits();
+  if (typeof CloudSync !== "undefined") CloudSync.queueUpsert(habit);
+}
+
+// Per-habit visibility on the public profile page (js/public-profile.js) -
+// only relevant once the owner's whole profile is also made public (see
+// js/profile-ui.js). Never affects the private, in-app view of the habit.
+function toggleHabitPublic(id) {
+  const habit = habits.find((h) => h.id === id);
+  if (!habit) return;
+
+  habit.isPublic = !habit.isPublic;
   habit.updatedAt = new Date().toISOString();
 
   saveHabits();
@@ -249,6 +269,7 @@ function renderHabits() {
               <span class="habit-streak"><span aria-hidden="true">🔥</span> ${streak}</span>
             </div>
           </div>
+          <button type="button" class="habit-visibility-btn ${habit.isPublic ? "is-public" : ""}" aria-pressed="${habit.isPublic ? "true" : "false"}" aria-label="${habit.isPublic ? "Public habit - tap to make private" : "Private habit - tap to make public"}" title="${habit.isPublic ? "Public" : "Private"}">${habit.isPublic ? "🌐" : "🔒"}</button>
           <label class="habit-check">
             <input type="checkbox" class="habit-checkbox" aria-labelledby="habit-name-${habit.id}" ${isCompletedToday ? "checked" : ""} />
             <span class="completion-circle ${isCompletedToday ? "completed" : ""}" aria-hidden="true"></span>
@@ -263,6 +284,7 @@ function renderHabits() {
     li.querySelector(".habit-checkbox").addEventListener("change", () => toggleHabit(habit.id));
     li.querySelector(".delete-btn").addEventListener("click", () => deleteHabit(habit.id));
     li.querySelector(".edit-btn").addEventListener("click", () => enterEditMode(li, habit));
+    li.querySelector(".habit-visibility-btn").addEventListener("click", () => toggleHabitPublic(habit.id));
 
     habitList.appendChild(li);
   });

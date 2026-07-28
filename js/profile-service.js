@@ -86,6 +86,7 @@ window.ProfileService = (function () {
     if (typeof fields.display_name === "string") patch.display_name = fields.display_name.trim();
     if (typeof fields.username === "string") patch.username = fields.username.trim();
     if (typeof fields.bio === "string") patch.bio = fields.bio.trim();
+    if (typeof fields.is_public === "boolean") patch.is_public = fields.is_public;
 
     const { data, error } = await supa.from(TABLE).update(patch).eq("id", user.id).select().maybeSingle();
     if (error) {

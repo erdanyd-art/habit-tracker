@@ -28,59 +28,60 @@ window.Achievements = (function () {
 
   // Ordered roughly by increasing difficulty - "latest achievement" (see
   // profile-stats.js) is taken to be the last unlocked entry in this order.
+  // Each metric reads only from the pre-aggregated numbers below (never raw
+  // history) so evaluateAggregates() can run against server-computed
+  // aggregates for the public profile page (js/public-profile.js), which
+  // never receives raw completion history at all.
   const LIST = [
     {
       icon: "🌱",
       title: "First Step",
       description: "Add your first habit",
       goal: 1,
-      metric: (habits) => (habits.length > 0 ? 1 : 0),
+      metric: (agg) => (agg.habitsCount > 0 ? 1 : 0),
     },
     {
       icon: "🔥",
       title: "Week Warrior",
       description: "Reach a 7-day streak",
       goal: 7,
-      metric: (habits, longestOverall) => longestOverall,
+      metric: (agg) => agg.longestOverall,
     },
     {
       icon: "💪",
       title: "Two Weeks Strong",
       description: "Reach a 14-day streak",
       goal: 14,
-      metric: (habits, longestOverall) => longestOverall,
+      metric: (agg) => agg.longestOverall,
     },
     {
       icon: "🏆",
       title: "Month Master",
       description: "Reach a 30-day streak",
       goal: 30,
-      metric: (habits, longestOverall) => longestOverall,
+      metric: (agg) => agg.longestOverall,
     },
     {
       icon: "💯",
       title: "Century Club",
       description: "Complete 100 habits total",
       goal: 100,
-      metric: (habits, longestOverall, totalCompleted) => totalCompleted,
+      metric: (agg) => agg.totalCompleted,
     },
     {
       icon: "⭐",
       title: "Habit Legend",
       description: "Reach a 100-day streak",
       goal: 100,
-      metric: (habits, longestOverall) => longestOverall,
+      metric: (agg) => agg.longestOverall,
     },
   ];
 
-  // Re-evaluates every achievement against the current habits, live -
+  // Re-evaluates every achievement against pre-computed aggregates, live -
   // nothing is stored, so this is cheap to call on every render.
-  function evaluate(habits) {
-    const longestOverall = habits.reduce((max, h) => Math.max(max, computeLongestStreak(h.history)), 0);
-    const totalCompleted = habits.reduce((sum, h) => sum + h.history.length, 0);
-
+  function evaluateAggregates(aggregates) {
     return LIST.map((achievement) => {
-      const rawValue = achievement.metric(habits, longestOverall, totalCompleted);
+      const rawValue = achievement.metric(aggregates);
       const unlocked = rawValue >= achievement.goal;
       const pct = Math.min(100, Math.round((rawValue / achievement.goal) * 100));
       return {
@@ -92,5 +93,11 @@ window.Achievements = (function () {
     });
   }
 
-  return { LIST, computeLongestStreak, evaluate };
+  function evaluate(habits) {
+    const longestOverall = habits.reduce((max, h) => Math.max(max, computeLongestStreak(h.history)), 0);
+    const totalCompleted = habits.reduce((sum, h) => sum + h.history.length, 0);
+    return evaluateAggregates({ habitsCount: habits.length, longestOverall, totalCompleted });
+  }
+
+  return { LIST, computeLongestStreak, evaluate, evaluateAggregates };
 })();
