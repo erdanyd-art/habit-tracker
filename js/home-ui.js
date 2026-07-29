@@ -1,9 +1,10 @@
 // Habit Tracker - Home screen
 //
 // Purely presentational: reads the existing habits data and renders the
-// greeting, hero progress card, "Continue Today" task list, and weekly
-// activity strip. Mutations (toggling a habit) go through the existing
-// global toggleHabit() from app.js - no new business logic is introduced.
+// greeting, the compact today-progress ring, and the "Continue Today" task
+// list - the only three things the redesigned Home screen shows. Mutations
+// (toggling a habit) go through the existing global toggleHabit() from
+// app.js - no new business logic is introduced.
 
 (function () {
   const greetingText = document.getElementById("greetingText");
@@ -11,11 +12,8 @@
   const heroRingProgress = document.getElementById("heroRingProgress");
   const heroPercent = document.getElementById("heroPercent");
   const heroCount = document.getElementById("heroCount");
-  const heroMessage = document.getElementById("heroMessage");
   const heroStreak = document.getElementById("heroStreak");
   const todayTaskList = document.getElementById("todayTaskList");
-  const weeklyActivityLabels = document.getElementById("weeklyActivityLabels");
-  const weeklyActivityChips = document.getElementById("weeklyActivityChips");
 
   if (!heroRingProgress) return;
 
@@ -51,14 +49,6 @@
     if (remaining === 1) return "One habit left.";
     if (pct >= 50) return "You're halfway there.";
     return "Small steps every day add up.";
-  }
-
-  function heroMessageFor(pct, total) {
-    if (total === 0) return "Every streak starts with one step.";
-    if (pct === 100) return "Amazing. See you again tomorrow.";
-    if (pct >= 50) return "You're almost there.";
-    if (pct > 0) return "Nice start. Keep going.";
-    return "Every streak starts with one step.";
   }
 
   function bestCurrentStreak(habits) {
@@ -115,42 +105,24 @@
     incomplete.forEach((habit, index) => {
       const streak = calculateStreak(habit.history);
 
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "today-task-card";
-      card.style.animationDelay = `${index * 0.05}s`;
-      card.setAttribute("aria-label", `${habit.name}${streak > 0 ? `, ${streak} day streak` : ""} - mark as complete`);
-      card.innerHTML = `
-        <span class="today-task-icon" aria-hidden="true">${pickHabitIcon(habit.name)}</span>
-        <span class="today-task-name">${escapeHtml(habit.name)}</span>
-        ${streak > 0 ? `<span class="today-task-streak" aria-hidden="true">🔥 ${streak}</span>` : ""}
-        <span class="today-task-check" aria-hidden="true"></span>
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "today-row";
+      row.style.animationDelay = `${index * 0.05}s`;
+      row.setAttribute("aria-label", `${habit.name}${streak > 0 ? `, ${streak} day streak` : ""} - mark as complete`);
+      row.innerHTML = `
+        <span class="today-row-icon" aria-hidden="true">${pickHabitIcon(habit.name)}</span>
+        <span class="today-row-name">${escapeHtml(habit.name)}</span>
+        ${streak > 0 ? `<span class="today-row-streak" aria-hidden="true">🔥 ${streak}</span>` : ""}
+        <span class="today-row-check" aria-hidden="true"></span>
       `;
-      card.addEventListener("click", () => {
-        if (card.classList.contains("completing")) return;
-        card.classList.add("completing");
+      row.addEventListener("click", () => {
+        if (row.classList.contains("completing")) return;
+        row.classList.add("completing");
         setTimeout(() => toggleHabit(habit.id), 300);
       });
-      todayTaskList.appendChild(card);
+      todayTaskList.appendChild(row);
     });
-  }
-
-  function renderWeeklyActivity() {
-    const days = getLastSevenDays();
-    const today = todayString();
-
-    weeklyActivityLabels.innerHTML = days
-      .map((d) => `<span>${DAY_LABELS[d.getDay()]}</span>`)
-      .join("");
-
-    weeklyActivityChips.innerHTML = days
-      .map((d) => {
-        const dStr = dateToStr(d);
-        const filled = getDayCompletionStatus(dStr) === "full";
-        const isToday = dStr === today;
-        return `<span class="weekly-chip ${filled ? "filled" : ""} ${isToday ? "is-today" : ""}"></span>`;
-      })
-      .join("");
   }
 
   function render() {
@@ -171,11 +143,9 @@
     lastPct = pct;
 
     heroCount.textContent = `${completed}/${total}`;
-    heroMessage.textContent = heroMessageFor(pct, total);
     heroStreak.textContent = String(bestCurrentStreak(currentHabits));
 
     renderTodayTasks(currentHabits);
-    renderWeeklyActivity();
   }
 
   document.addEventListener("habits:updated", render);

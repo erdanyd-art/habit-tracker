@@ -203,7 +203,7 @@
   searchInput.addEventListener("input", handleInput);
 
   document.addEventListener("screen:shown", (e) => {
-    if (e.detail.screen !== "discover") return;
+    if (e.detail.screen !== "social") return;
     renderRecentlyViewed();
     if (searchInput.value.trim() === "" && !suggestionsLoaded) {
       suggestionsLoaded = true;
