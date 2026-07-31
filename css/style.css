@@ -2846,3 +2846,210 @@ body:has(.public-profile-page) {
   font-size: 14px;
   padding: 20px 0;
 }
+
+/* Social segmented control (Sprint 5) - theme-aware, same sliding-pill
+   mechanic as the bottom nav. */
+
+.segmented-control {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--color-bg);
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.segmented-pill {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: calc(100% - 8px);
+  background: var(--color-surface);
+  border-radius: 9px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+}
+
+.segmented-btn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.segmented-btn.active {
+  color: var(--color-text);
+}
+
+/* Activity Feed & Leaderboard - deliberately dark regardless of the app's
+   light/dark toggle (Apple Fitness sharing-card look): fixed colors, not
+   the --color-* variables used everywhere else, on purpose. */
+
+.activity-list,
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-row,
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #1c1c1e;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.activity-row-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: 10px;
+  background: #2c2c2e;
+}
+
+.activity-row-avatar,
+.leaderboard-row-avatar {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2c2c2e;
+}
+
+.leaderboard-row-avatar {
+  width: 38px;
+  height: 38px;
+}
+
+.activity-avatar-fallback,
+.leaderboard-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #98989d;
+}
+
+.activity-row-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.activity-row-line {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f5f5f7;
+  line-height: 1.35;
+}
+
+.activity-row-line strong {
+  font-weight: 700;
+}
+
+.activity-row-time {
+  font-size: 12px;
+  color: #98989d;
+}
+
+.activity-load-more-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 999px;
+  background: #1c1c1e;
+  color: #f5f5f7;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.activity-load-more-btn:active {
+  transform: scale(0.97);
+}
+
+.activity-load-more-btn[hidden] {
+  display: none;
+}
+
+.leaderboard-row.is-me {
+  border: 1px solid #30d158;
+}
+
+.leaderboard-rank {
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f5f5f7;
+}
+
+.leaderboard-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.leaderboard-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f5f5f7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-username {
+  font-size: 12px;
+  color: #98989d;
+}
+
+.leaderboard-stats {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.leaderboard-pct {
+  font-size: 14px;
+  font-weight: 700;
+  color: #30d158;
+}
+
+.leaderboard-streak {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ff9f0a;
+}

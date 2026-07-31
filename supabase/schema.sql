@@ -686,3 +686,182 @@ grant execute on function public.cancel_friend_request(uuid) to authenticated;
 grant execute on function public.remove_friend(uuid) to authenticated;
 grant execute on function public.get_relationship_status(uuid) to authenticated;
 grant execute on function public.list_friend_requests(date) to authenticated;
+
+-- Sprint 5: Activity Feed & Weekly Leaderboard -----------------------------
+
+-- No habit_id column, on purpose: keeps this an immutable, append-only log
+-- (habit_name is a point-in-time snapshot) rather than a live-joined view,
+-- same "no unnecessary duplication, survives deletion" reasoning already
+-- applied to xp_transactions - an activity post stays visible even if that
+-- habit is later deleted or made private, exactly like XP already does.
+create table if not exists activity_feed (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  activity_type text not null check (activity_type in ('habit_completed', 'level_up', 'streak_milestone', 'all_habits_completed')),
+  habit_name text,
+  streak_days int,
+  level int,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists activity_feed_user_created_idx on activity_feed (user_id, created_at desc);
+
+alter table activity_feed enable row level security;
+
+-- Posting your own activity has no cross-user side effect (unlike Sprint
+-- 4's friend-request mutations), so a plain owner-scoped insert policy is
+-- enough - no security definer function needed for writes.
+create policy "Users can view their own activity"
+on activity_feed for select
+using (auth.uid() = user_id);
+
+create policy "Users can insert their own activity"
+on activity_feed for insert
+with check (auth.uid() = user_id);
+
+-- Security definer: reading FRIENDS' activity needs their profiles row too,
+-- which plain RLS doesn't allow (profiles is still owner-only select - this
+-- migration doesn't relax that). Excludes the caller's own posts - this is
+-- a friends feed, not a personal timeline.
+create or replace function public.get_friends_activity_feed(p_limit int default 30, p_offset int default 0)
+returns json
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_result json;
+begin
+  if v_me is null then
+    return '[]'::json;
+  end if;
+
+  with friend_ids as (
+    select case when user_a = v_me then user_b else user_a end as friend_id
+    from friendships
+    where user_a = v_me or user_b = v_me
+  ),
+  feed as (
+    select af.*
+    from activity_feed af
+    where af.user_id in (select friend_id from friend_ids)
+    order by af.created_at desc
+    limit p_limit offset p_offset
+  )
+  select coalesce(json_agg(json_build_object(
+    'id', feed.id,
+    'activity_type', feed.activity_type,
+    'habit_name', feed.habit_name,
+    'streak_days', feed.streak_days,
+    'level', feed.level,
+    'created_at', feed.created_at,
+    'username', p.username,
+    'display_name', p.display_name,
+    'avatar_url', p.avatar_url
+  ) order by feed.created_at desc), '[]'::json)
+  into v_result
+  from feed
+  join profiles p on p.id = feed.user_id;
+
+  return v_result;
+end;
+$$;
+
+-- Security definer, same reason as above. Ranks the caller + their friends
+-- by weekly completion rate -> current streak -> total XP, computed only
+-- from each person's PUBLIC habits (is_public = true) - the same boundary
+-- used everywhere else in this app for cross-user visibility; being
+-- friends does not bypass a habit's own privacy toggle.
+create or replace function public.get_friends_leaderboard(p_today date default current_date)
+returns json
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_week_start date := p_today - 6;
+  v_result json;
+begin
+  if v_me is null then
+    return '[]'::json;
+  end if;
+
+  with people as (
+    select v_me as person_id
+    union
+    select case when user_a = v_me then user_b else user_a end
+    from friendships
+    where user_a = v_me or user_b = v_me
+  ),
+  public_habits as (
+    select h.user_id, h.history
+    from habits h
+    join people pe on pe.person_id = h.user_id
+    where h.is_public = true
+  ),
+  per_habit as (
+    select
+      user_id,
+      (
+        select count(*)
+        from jsonb_array_elements_text(history) as d
+        where d::date between v_week_start and p_today
+      ) as completions_this_week,
+      public.habit_current_streak(history, p_today) as current_streak
+    from public_habits
+  ),
+  per_person as (
+    select
+      pe.person_id,
+      count(ph.user_id) as public_habit_count,
+      coalesce(sum(ph.completions_this_week), 0) as total_completions_this_week,
+      coalesce(max(ph.current_streak), 0) as current_streak
+    from people pe
+    left join per_habit ph on ph.user_id = pe.person_id
+    group by pe.person_id
+  ),
+  with_xp as (
+    select
+      pp.*,
+      coalesce((
+        select sum(x.xp_amount) from xp_transactions x
+        where x.user_id = pp.person_id
+          and x.habit_id in (select id from habits where user_id = pp.person_id and is_public = true)
+      ), 0) as total_xp,
+      case when pp.public_habit_count = 0 then 0
+           else round((pp.total_completions_this_week::numeric / (pp.public_habit_count * 7)) * 100)
+      end as completion_rate_pct
+    from per_person pp
+  ),
+  ranked as (
+    select
+      w.*,
+      p.username,
+      p.display_name,
+      p.avatar_url,
+      (w.person_id = v_me) as is_me,
+      row_number() over (
+        order by w.completion_rate_pct desc, w.current_streak desc, w.total_xp desc
+      ) as rank
+    from with_xp w
+    join profiles p on p.id = w.person_id
+  )
+  select coalesce(json_agg(json_build_object(
+    'rank', rank,
+    'username', username,
+    'display_name', display_name,
+    'avatar_url', avatar_url,
+    'completion_rate_pct', completion_rate_pct,
+    'current_streak', current_streak,
+    'total_xp', total_xp,
+    'is_me', is_me
+  ) order by rank), '[]'::json)
+  into v_result
+  from ranked;
+
+  return v_result;
+end;
+$$;
+
+grant execute on function public.get_friends_activity_feed(int, int) to authenticated;
+grant execute on function public.get_friends_leaderboard(date) to authenticated;

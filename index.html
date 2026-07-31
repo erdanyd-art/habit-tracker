@@ -170,40 +170,78 @@
   <section class="screen" id="screen-social" tabindex="-1">
     <header class="app-header">
       <h1 class="page-title">Social</h1>
-      <p class="motivational-text">Find people to follow</p>
+      <p class="motivational-text">Find people, see friend activity</p>
     </header>
 
-    <section class="discover-search-section">
-      <div class="discover-search-bar">
-        <svg class="discover-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="search" id="discoverSearchInput" class="discover-search-input" placeholder="Search by username or name" autocomplete="off" autocapitalize="off" autocorrect="off" />
+    <div class="segmented-control" id="socialSegmentedControl" role="tablist">
+      <span class="segmented-pill" id="socialSegmentPill" aria-hidden="true"></span>
+      <button type="button" class="segmented-btn" data-segment="discover" role="tab" aria-selected="false">Discover</button>
+      <button type="button" class="segmented-btn active" data-segment="activity" role="tab" aria-selected="true">Activity</button>
+      <button type="button" class="segmented-btn" data-segment="leaderboard" role="tab" aria-selected="false">Leaderboard</button>
+    </div>
+
+    <div id="socialDiscoverPanel" hidden>
+      <section class="discover-search-section">
+        <div class="discover-search-bar">
+          <svg class="discover-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="search" id="discoverSearchInput" class="discover-search-input" placeholder="Search by username or name" autocomplete="off" autocapitalize="off" autocorrect="off" />
+        </div>
+      </section>
+
+      <div id="discoverLoading" class="discover-loading" hidden aria-hidden="true">
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
       </div>
-    </section>
 
-    <div id="discoverLoading" class="discover-loading" hidden aria-hidden="true">
-      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
-      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+      <div id="discoverEmpty" class="public-profile-empty" hidden>
+        <span class="public-profile-empty-emoji" id="discoverEmptyEmoji" aria-hidden="true">🔍</span>
+        <span class="public-profile-empty-text" id="discoverEmptyText">No users found.</span>
+      </div>
+
+      <section id="discoverResultsSection" class="discover-section" hidden>
+        <h2 class="section-title">Results</h2>
+        <div id="discoverResultsList" class="discover-result-list" aria-live="polite"></div>
+      </section>
+
+      <section id="discoverRecentSection" class="discover-section" hidden>
+        <h2 class="section-title">Recently Viewed</h2>
+        <div id="discoverRecentList" class="discover-result-list"></div>
+      </section>
+
+      <section id="discoverSuggestedSection" class="discover-section" hidden>
+        <h2 class="section-title">Suggested For You</h2>
+        <div id="discoverSuggestedList" class="discover-result-list"></div>
+      </section>
     </div>
 
-    <div id="discoverEmpty" class="public-profile-empty" hidden>
-      <span class="public-profile-empty-emoji" id="discoverEmptyEmoji" aria-hidden="true">🔍</span>
-      <span class="public-profile-empty-text" id="discoverEmptyText">No users found.</span>
+    <div id="socialActivityPanel">
+      <div id="activityLoading" class="discover-loading" hidden aria-hidden="true">
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+      </div>
+
+      <div id="activityEmpty" class="public-profile-empty" hidden>
+        <span class="public-profile-empty-emoji" aria-hidden="true">👋</span>
+        <span class="public-profile-empty-text">No activity yet. Add friends to see their progress here.</span>
+      </div>
+
+      <div id="activityList" class="activity-list"></div>
+      <button type="button" class="activity-load-more-btn" id="activityLoadMoreBtn" hidden>Load More</button>
     </div>
 
-    <section id="discoverResultsSection" class="discover-section" hidden>
-      <h2 class="section-title">Results</h2>
-      <div id="discoverResultsList" class="discover-result-list" aria-live="polite"></div>
-    </section>
+    <div id="socialLeaderboardPanel" hidden>
+      <div id="leaderboardLoading" class="discover-loading" hidden aria-hidden="true">
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+        <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+      </div>
 
-    <section id="discoverRecentSection" class="discover-section" hidden>
-      <h2 class="section-title">Recently Viewed</h2>
-      <div id="discoverRecentList" class="discover-result-list"></div>
-    </section>
+      <div id="leaderboardEmpty" class="public-profile-empty" hidden>
+        <span class="public-profile-empty-emoji" aria-hidden="true">🏆</span>
+        <span class="public-profile-empty-text">Add friends to start a leaderboard.</span>
+      </div>
 
-    <section id="discoverSuggestedSection" class="discover-section" hidden>
-      <h2 class="section-title">Suggested For You</h2>
-      <div id="discoverSuggestedList" class="discover-result-list"></div>
-    </section>
+      <div id="leaderboardList" class="leaderboard-list"></div>
+    </div>
   </section>
 
   <section class="screen" id="screen-profile" tabindex="-1">
@@ -381,6 +419,8 @@
 <script src="js/relationship-status-service.js"></script>
 <script src="js/friend-request-service.js"></script>
 <script src="js/friend-service.js"></script>
+<script src="js/activity-service.js"></script>
+<script src="js/leaderboard-service.js"></script>
 <script src="js/home-ui.js"></script>
 <script src="js/habits-ui.js"></script>
 <script src="js/habit-swipe.js"></script>
@@ -389,6 +429,9 @@
 <script src="js/user-search-service.js"></script>
 <script src="js/user-profile-service.js"></script>
 <script src="js/discover-ui.js"></script>
+<script src="js/activity-ui.js"></script>
+<script src="js/leaderboard-ui.js"></script>
+<script src="js/social-ui.js"></script>
 <script src="js/bottom-nav.js"></script>
 </body>
 </html>

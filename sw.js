@@ -1,4 +1,4 @@
-const CACHE_NAME = "habit-tracker-v30";
+const CACHE_NAME = "habit-tracker-v31";
 const ASSETS = [
   "./",
   "./index.html",
@@ -23,6 +23,11 @@ const ASSETS = [
   "./js/friend-request-service.js",
   "./js/friend-service.js",
   "./js/friend-requests-ui.js",
+  "./js/activity-service.js",
+  "./js/leaderboard-service.js",
+  "./js/activity-ui.js",
+  "./js/leaderboard-ui.js",
+  "./js/social-ui.js",
   "./js/user-search-service.js",
   "./js/user-profile-service.js",
   "./js/discover-ui.js",

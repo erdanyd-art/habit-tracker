@@ -202,8 +202,12 @@
 
   searchInput.addEventListener("input", handleInput);
 
-  document.addEventListener("screen:shown", (e) => {
-    if (e.detail.screen !== "social") return;
+  // Sprint 5: the Social screen now defaults to the Activity segment, not
+  // Discover, so this can no longer just listen for the screen itself
+  // showing - it needs to know specifically when the Discover segment
+  // becomes the visible one (see social-ui.js).
+  document.addEventListener("social-segment:shown", (e) => {
+    if (e.detail.segment !== "discover") return;
     renderRecentlyViewed();
     if (searchInput.value.trim() === "" && !suggestionsLoaded) {
       suggestionsLoaded = true;
