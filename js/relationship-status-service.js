@@ -1,10 +1,11 @@
 // Habit Tracker - Relationship status service (Supabase I/O)
 //
 // Wraps the single RPC get_relationship_status() (see supabase/schema.sql),
-// which returns one of: self / friends / request_sent / request_received
-// (with request_id) / none / signed_out. Not security definer server-side -
-// RLS already lets a signed-in user see any friend_requests/friendships row
-// they're a party to, which is exactly what's needed here.
+// which returns one of: self / friends (also carries nudged_today, Sprint
+// 6) / request_sent / request_received (with request_id) / none /
+// signed_out. Not security definer server-side - RLS already lets a
+// signed-in user see any friend_requests/friendships row they're a party
+// to, which is exactly what's needed here.
 //
 // Owns an in-memory cache keyed by other-user-id so the same profile isn't
 // re-fetched on every render (the sprint's "avoid unnecessary Supabase
@@ -63,5 +64,27 @@ window.RelationshipStatusService = (function () {
     cache.delete(otherUserId);
   }
 
-  return { getClient, getCurrentUserId, getStatus, setCached, invalidate };
+  // Lives here rather than a new dedicated file - nudging is fundamentally
+  // an action on "my relationship with this other user", the same thing
+  // this whole module already tracks. On success, updates the cache
+  // in-place so the Nudge button flips to its disabled state immediately.
+  async function sendNudge(otherUserId) {
+    const supa = getClient();
+    if (!supa) return { status: "error" };
+
+    const { data, error } = await supa.rpc("send_nudge", { p_receiver_id: otherUserId });
+    if (error || !data) {
+      console.warn("send_nudge failed:", error && error.message);
+      return { status: "error" };
+    }
+
+    if (data.status === "sent") {
+      const current = cache.get(otherUserId) || { status: "friends" };
+      cache.set(otherUserId, { ...current, nudged_today: true });
+    }
+
+    return data;
+  }
+
+  return { getClient, getCurrentUserId, getStatus, setCached, invalidate, sendNudge };
 })();

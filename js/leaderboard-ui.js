@@ -62,6 +62,26 @@
     return el;
   }
 
+  // Sprint 6: detected client-side, not server-side - there's no scheduled
+  // job in this app that could notice "you're now top 3" on its own, so
+  // this checks on every load and self-inserts a notification the moment
+  // rank crosses into the top 3 (deduped via localStorage so re-opening
+  // the tab while still in 1st/2nd/3rd doesn't re-notify).
+  const TOP3_KEY = "leaderboard_last_known_rank";
+
+  function checkTop3(entries) {
+    const me = entries.find((e) => e.is_me);
+    if (!me) return;
+
+    const lastRank = parseInt(localStorage.getItem(TOP3_KEY) || "0", 10);
+    if (me.rank <= 3 && lastRank > 3) {
+      if (typeof NotificationService !== "undefined") {
+        NotificationService.postSelfNotification({ notification_type: "leaderboard_top3", rank: me.rank });
+      }
+    }
+    localStorage.setItem(TOP3_KEY, String(me.rank));
+  }
+
   async function load() {
     loadingEl.hidden = false;
     emptyEl.hidden = true;
@@ -77,6 +97,7 @@
     }
 
     entries.forEach((entry, i) => listEl.appendChild(row(entry, i)));
+    checkTop3(entries);
   }
 
   document.addEventListener("social-segment:shown", (e) => {

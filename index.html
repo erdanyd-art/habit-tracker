@@ -354,8 +354,30 @@
     </section>
   </section>
 
+  <section class="screen" id="screen-notifications" tabindex="-1">
+    <header class="app-header">
+      <h1 class="page-title">Notifications</h1>
+    </header>
+
+    <div id="notificationsLoading" class="discover-loading" hidden aria-hidden="true">
+      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+      <div class="public-profile-skeleton public-profile-skeleton-sm"></div>
+    </div>
+
+    <div id="notificationsEmpty" class="public-profile-empty" hidden>
+      <span class="public-profile-empty-emoji" aria-hidden="true">🔔</span>
+      <span class="public-profile-empty-text">No notifications yet.</span>
+    </div>
+
+    <div id="notificationsList" class="notification-list"></div>
+  </section>
 
 </div>
+
+<button type="button" class="notification-bell-btn" id="notificationBellBtn" data-screen-link="notifications" aria-label="Notifications">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+  <span class="notification-bell-badge" id="notificationBellBadge" hidden>0</span>
+</button>
 
 <div class="level-up-overlay" id="levelUpOverlay" hidden>
   <div class="level-up-modal" role="dialog" aria-modal="true" aria-labelledby="levelUpTitle">
@@ -421,6 +443,8 @@
 <script src="js/friend-service.js"></script>
 <script src="js/activity-service.js"></script>
 <script src="js/leaderboard-service.js"></script>
+<script src="js/notification-service.js"></script>
+<script src="js/relative-time.js"></script>
 <script src="js/home-ui.js"></script>
 <script src="js/habits-ui.js"></script>
 <script src="js/habit-swipe.js"></script>
@@ -432,6 +456,7 @@
 <script src="js/activity-ui.js"></script>
 <script src="js/leaderboard-ui.js"></script>
 <script src="js/social-ui.js"></script>
+<script src="js/notifications-ui.js"></script>
 <script src="js/bottom-nav.js"></script>
 </body>
 </html>

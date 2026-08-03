@@ -1907,11 +1907,21 @@ body:has(.public-profile-page) {
   display: none;
 }
 
-/* Friend action button (Sprint 4) - rendered into #publicProfileFriendSlot */
+/* Friend action button (Sprint 4) - rendered into #publicProfileFriendSlot.
+   The slot becomes a flex row so the Friends + Nudge buttons (Sprint 6)
+   can sit side by side; flex: 1 (not width: 100%) so that still works
+   whether there's one button or two. */
 
-.pp-friend-btn {
+#publicProfileFriendSlot {
+  display: flex;
+  gap: 10px;
   width: 100%;
   margin-top: 14px;
+}
+
+.pp-friend-btn,
+.pp-nudge-btn {
+  flex: 1;
   padding: 12px;
   border: none;
   border-radius: 999px;
@@ -1922,11 +1932,13 @@ body:has(.public-profile-page) {
   transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
 }
 
-.pp-friend-btn:active {
+.pp-friend-btn:active,
+.pp-nudge-btn:active {
   transform: scale(0.96);
 }
 
-.pp-friend-btn:disabled {
+.pp-friend-btn:disabled,
+.pp-nudge-btn:disabled {
   opacity: 0.6;
   cursor: default;
 }
@@ -1950,6 +1962,11 @@ body:has(.public-profile-page) {
   background: var(--color-bg);
   color: var(--color-text);
   border: 1px solid var(--color-border);
+}
+
+.pp-nudge-btn {
+  background: var(--color-streak);
+  color: #fff;
 }
 
 .public-profile-progress-card {
@@ -2695,6 +2712,10 @@ body:has(.public-profile-page) {
   position: relative;
   width: 44px;
   height: 44px;
+  /* Leaves room for the fixed notification bell (Sprint 6), which sits in
+     the same top-right corner on every screen - without this the two
+     circles stack directly on top of each other on narrow viewports. */
+  margin-right: 52px;
   flex-shrink: 0;
   border: none;
   border-radius: 50%;
@@ -3052,4 +3073,125 @@ body:has(.public-profile-page) {
   font-size: 12px;
   font-weight: 600;
   color: #ff9f0a;
+}
+
+/* Notifications (Sprint 6) - bell + page dark-only, same fixed-color
+   approach as the Activity/Leaderboard cards, one consistent "social"
+   family regardless of the app's light/dark toggle. */
+
+.notification-bell-btn {
+  position: fixed;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 16px;
+  z-index: 90;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #1c1c1e;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.notification-bell-btn svg {
+  width: 19px;
+  height: 19px;
+  color: #f5f5f7;
+}
+
+.notification-bell-btn:active {
+  transform: scale(0.94);
+}
+
+.notification-bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.notification-bell-badge[hidden] {
+  display: none;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notification-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #1c1c1e;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  animation: cardFadeIn 0.4s ease backwards;
+}
+
+.notification-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2c2c2e;
+}
+
+.notification-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.notification-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.notification-line {
+  font-size: 14px;
+  font-weight: 500;
+  color: #f5f5f7;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #98989d;
+}
+
+.notification-unread-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0;
+}
+
+.notification-row.is-unread .notification-unread-dot {
+  opacity: 1;
 }

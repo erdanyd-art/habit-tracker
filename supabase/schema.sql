@@ -486,6 +486,10 @@ begin
   if found then
     update friend_requests set status = 'accepted', updated_at = now() where id = v_reverse_id;
     insert into friendships (user_a, user_b) values (v_lo, v_hi) on conflict do nothing;
+    -- p_receiver_id sent the original request that just got auto-accepted
+    -- by this mutual request - they're the one who should be notified.
+    insert into notifications (user_id, notification_type, actor_id)
+    values (p_receiver_id, 'friend_accepted', v_me);
     return json_build_object('status', 'friends');
   end if;
 
@@ -520,6 +524,9 @@ begin
     v_lo := least(v_request.sender_id, v_request.receiver_id);
     v_hi := greatest(v_request.sender_id, v_request.receiver_id);
     insert into friendships (user_a, user_b) values (v_lo, v_hi) on conflict do nothing;
+    -- Notify whoever originally sent the request, not the accepter.
+    insert into notifications (user_id, notification_type, actor_id)
+    values (v_request.sender_id, 'friend_accepted', v_me);
     return json_build_object('status', 'friends');
   else
     update friend_requests set status = 'rejected', updated_at = now() where id = p_request_id;
@@ -589,6 +596,7 @@ declare
   v_hi uuid;
   v_incoming_id uuid;
   v_outgoing_id uuid;
+  v_nudged_today boolean;
 begin
   if v_me is null then
     return json_build_object('status', 'signed_out');
@@ -601,7 +609,11 @@ begin
   v_hi := greatest(v_me, p_other_user_id);
 
   if exists(select 1 from friendships where user_a = v_lo and user_b = v_hi) then
-    return json_build_object('status', 'friends');
+    select exists(
+      select 1 from nudges
+      where sender_id = v_me and receiver_id = p_other_user_id and last_nudged_at::date = current_date
+    ) into v_nudged_today;
+    return json_build_object('status', 'friends', 'nudged_today', v_nudged_today);
   end if;
 
   select id into v_incoming_id from friend_requests
@@ -865,3 +877,190 @@ $$;
 
 grant execute on function public.get_friends_activity_feed(int, int) to authenticated;
 grant execute on function public.get_friends_leaderboard(date) to authenticated;
+
+-- Sprint 6: Friend Accountability (Nudges & Notifications) ----------------
+
+-- One row per (sender, receiver) pair, upserted - not an append-only log.
+-- "last_nudged_at" doubles as both anti-spam checks: a pair can nudge
+-- again once this date isn't today, and "5 per day" is just counting how
+-- many of the sender's rows carry today's date.
+create table if not exists nudges (
+  sender_id uuid references auth.users(id) on delete cascade not null,
+  receiver_id uuid references auth.users(id) on delete cascade not null,
+  last_nudged_at timestamptz not null default now(),
+  primary key (sender_id, receiver_id),
+  check (sender_id <> receiver_id)
+);
+
+alter table nudges enable row level security;
+
+-- Only a "did I nudge them" read - who nudged ME lives in notifications,
+-- not here. All writes go through send_nudge() below, never direct.
+create policy "Users can view their own sent nudges"
+on nudges for select
+using (auth.uid() = sender_id);
+
+-- Structured fields, not a pre-rendered string - same reasoning as
+-- activity_feed: the client renders final text from notification_type +
+-- motivation_type + streak_days/rank + the joined actor's profile, so copy
+-- can change later without a migration.
+create table if not exists notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  notification_type text not null check (notification_type in ('nudge', 'friend_accepted', 'leaderboard_top3')),
+  actor_id uuid references auth.users(id) on delete set null,
+  motivation_type text check (motivation_type in ('streak_risk', 'almost_done', 'just_start', 'general')),
+  streak_days int,
+  rank int,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists notifications_user_created_idx on notifications (user_id, created_at desc);
+
+alter table notifications enable row level security;
+
+create policy "Users can view their own notifications"
+on notifications for select
+using (auth.uid() = user_id);
+
+-- Covers the one plain self-action (leaderboard_top3, inserted directly by
+-- the client - see leaderboard-ui.js) - nudge/friend_accepted notifications
+-- are inserted by the security definer functions below instead.
+create policy "Users can insert their own notifications"
+on notifications for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can mark their own notifications read"
+on notifications for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+-- Security definer: needs to read the RECEIVER's public habits to decide
+-- eligibility and pick a motivation_type, same privacy boundary (public
+-- habits only) used everywhere else in this app for cross-user visibility.
+create or replace function public.send_nudge(p_receiver_id uuid)
+returns json
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_lo uuid;
+  v_hi uuid;
+  v_today date := current_date;
+  v_already_nudged boolean;
+  v_nudges_today int;
+  v_public_habit_count int;
+  v_completed_today int;
+  v_streak int;
+  v_motivation text;
+begin
+  if v_me is null then
+    return json_build_object('status', 'signed_out');
+  end if;
+  if v_me = p_receiver_id then
+    return json_build_object('status', 'error', 'message', 'Cannot nudge yourself.');
+  end if;
+
+  v_lo := least(v_me, p_receiver_id);
+  v_hi := greatest(v_me, p_receiver_id);
+
+  if not exists(select 1 from friendships where user_a = v_lo and user_b = v_hi) then
+    return json_build_object('status', 'error', 'message', 'You can only nudge friends.');
+  end if;
+
+  select exists(
+    select 1 from nudges
+    where sender_id = v_me and receiver_id = p_receiver_id and last_nudged_at::date = v_today
+  ) into v_already_nudged;
+
+  if v_already_nudged then
+    return json_build_object('status', 'already_nudged');
+  end if;
+
+  select count(*) into v_nudges_today
+  from nudges
+  where sender_id = v_me and last_nudged_at::date = v_today;
+
+  if v_nudges_today >= 5 then
+    return json_build_object('status', 'limit_reached');
+  end if;
+
+  select
+    count(*),
+    coalesce(sum(case when v_today::text in (select jsonb_array_elements_text(h.history)) then 1 else 0 end), 0),
+    coalesce(max(public.habit_current_streak(h.history, v_today)), 0)
+  into v_public_habit_count, v_completed_today, v_streak
+  from habits h
+  where h.user_id = p_receiver_id and h.is_public = true;
+
+  if v_public_habit_count = 0 or v_completed_today >= v_public_habit_count then
+    return json_build_object('status', 'already_done');
+  end if;
+
+  if v_streak > 0 and v_completed_today = 0 then
+    v_motivation := 'streak_risk';
+  elsif v_public_habit_count - v_completed_today = 1 then
+    v_motivation := 'almost_done';
+  elsif v_completed_today = 0 then
+    v_motivation := 'just_start';
+  else
+    v_motivation := 'general';
+  end if;
+
+  insert into nudges (sender_id, receiver_id, last_nudged_at)
+  values (v_me, p_receiver_id, now())
+  on conflict (sender_id, receiver_id) do update set last_nudged_at = excluded.last_nudged_at;
+
+  insert into notifications (user_id, notification_type, actor_id, streak_days, motivation_type)
+  values (p_receiver_id, 'nudge', v_me, v_streak, v_motivation);
+
+  return json_build_object('status', 'sent');
+end;
+$$;
+
+-- Security definer: needs the actor's profiles row, which plain RLS
+-- wouldn't allow (same reason get_friends_activity_feed needs to be).
+create or replace function public.get_my_notifications(p_limit int default 30)
+returns json
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_result json;
+begin
+  if v_me is null then
+    return '[]'::json;
+  end if;
+
+  with recent as (
+    select *
+    from notifications
+    where user_id = v_me
+    order by created_at desc
+    limit p_limit
+  )
+  select coalesce(json_agg(json_build_object(
+    'id', recent.id,
+    'notification_type', recent.notification_type,
+    'motivation_type', recent.motivation_type,
+    'streak_days', recent.streak_days,
+    'rank', recent.rank,
+    'read_at', recent.read_at,
+    'created_at', recent.created_at,
+    'actor_username', p.username,
+    'actor_display_name', p.display_name,
+    'actor_avatar_url', p.avatar_url
+  ) order by recent.created_at desc), '[]'::json)
+  into v_result
+  from recent
+  left join profiles p on p.id = recent.actor_id;
+
+  return v_result;
+end;
+$$;
+
+grant execute on function public.send_nudge(uuid) to authenticated;
+grant execute on function public.get_my_notifications(int) to authenticated;

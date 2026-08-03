@@ -241,12 +241,13 @@
   // RelationshipStatusService.getStatus() - see friend-request-service.js /
   // friend-service.js for the actual mutations.
 
-  function setFriendButtonState(status, profileId) {
+  function setFriendButtonState(status, profile) {
     if (!friendSlot) return;
     friendSlot.innerHTML = "";
 
     if (!status || ["self", "signed_out", "error"].includes(status.status)) return;
 
+    const profileId = profile.id;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "pp-friend-btn";
@@ -258,7 +259,7 @@
         btn.disabled = true;
         const result = await FriendRequestService.sendRequest(profileId);
         btn.disabled = false;
-        setFriendButtonState(result, profileId);
+        setFriendButtonState(result, profile);
       });
     } else if (status.status === "request_sent") {
       btn.textContent = "Request Sent";
@@ -268,7 +269,7 @@
         btn.disabled = true;
         const result = await FriendRequestService.cancelRequest(status.request_id, profileId);
         btn.disabled = false;
-        setFriendButtonState(result.status === "cancelled" ? { status: "none" } : result, profileId);
+        setFriendButtonState(result.status === "cancelled" ? { status: "none" } : result, profile);
       });
     } else if (status.status === "request_received") {
       btn.textContent = "Accept Request";
@@ -277,7 +278,7 @@
         btn.disabled = true;
         const result = await FriendRequestService.respondToRequest(status.request_id, profileId, true);
         btn.disabled = false;
-        setFriendButtonState(result, profileId);
+        setFriendButtonState(result, profile);
       });
     } else if (status.status === "friends") {
       btn.textContent = "Friends";
@@ -287,13 +288,57 @@
         btn.disabled = true;
         const result = await FriendService.removeFriend(profileId);
         btn.disabled = false;
-        setFriendButtonState(result.status === "none" ? { status: "none" } : result, profileId);
+        setFriendButtonState(result.status === "none" ? { status: "none" } : result, profile);
       });
+      friendSlot.appendChild(btn);
+      friendSlot.appendChild(nudgeButton(status, profile));
+      return;
     } else {
       return;
     }
 
     friendSlot.appendChild(btn);
+  }
+
+  // Sprint 6: only shown once you're friends. Disabled (reading "Nudged
+  // today ✓") if this viewer already nudged them today (nudged_today, from
+  // the same get_relationship_status call), or if they've already
+  // completed every public habit today - no point nudging someone who's
+  // done (profile.completed_today_count/public_habit_count are already
+  // fetched for the rest of the page, no extra call needed).
+  function nudgeButton(status, profile) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pp-nudge-btn";
+
+    const friendFinished = profile.public_habit_count > 0 && profile.completed_today_count >= profile.public_habit_count;
+    const alreadyNudged = !!status.nudged_today;
+
+    if (alreadyNudged || friendFinished) {
+      btn.textContent = "Nudged today ✓";
+      btn.disabled = true;
+      if (friendFinished && !alreadyNudged) btn.textContent = "All done today ✓";
+      return btn;
+    }
+
+    btn.textContent = "👋 Nudge";
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const result = await RelationshipStatusService.sendNudge(profile.id);
+      if (result.status === "sent" || result.status === "already_nudged") {
+        btn.textContent = "Nudged today ✓";
+      } else if (result.status === "already_done") {
+        btn.textContent = "All done today ✓";
+      } else if (result.status === "limit_reached") {
+        btn.disabled = false;
+        if (typeof ErrorUI !== "undefined") ErrorUI.showToast("You've sent all 5 nudges for today.");
+      } else {
+        btn.disabled = false;
+        if (typeof ErrorUI !== "undefined") ErrorUI.showToast("Couldn't send that nudge. Try again.");
+      }
+    });
+
+    return btn;
   }
 
   async function renderFriendButton(profile) {
@@ -303,7 +348,7 @@
     if (!viewerId || viewerId === profile.id) return;
 
     const status = await RelationshipStatusService.getStatus(profile.id);
-    setFriendButtonState(status, profile.id);
+    setFriendButtonState(status, profile);
   }
 
   function renderProfile(profile) {
